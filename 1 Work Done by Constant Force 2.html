@@ -1,0 +1,379 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  
+  <title>1 Work Done by Constant Force 2 </title>
+  
+  <style>
+    :root{--bg:#0f172a;--panel:#111827;--muted:#9ca3af;--text:#e5e7eb;
+      --brand:#22c55e;--accent:#3b82f6;--danger:#ef4444;--amber:#f59e0b;--ring:#60a5fa;}
+    *{box-sizing:border-box}
+    body{margin:0;font-family:system-ui,-apple-system,Segoe UI,Roboto,Ubuntu,'Helvetica Neue',Arial,'Noto Sans';background:var(--bg);color:var(--text)}
+    header{position:sticky;top:0;z-index:9999;background:linear-gradient(180deg,rgba(17,24,39,.95),rgba(17,24,39,.85));backdrop-filter:blur(6px);border-bottom:1px solid #1f2937}
+
+    .wrap{max-width:1200px;margin-inline:auto;padding:14px 16px;display:flex;align-items:center;gap:12px;justify-content:space-between;}
+    
+    /* ↓↓↓ Smaller Logo Title ↓↓↓ */
+    h1{font-size:15px;margin:0;display:flex;gap:10px;align-items:center;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:60vw;}
+    h1 span.logo{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:8px;overflow:hidden;}
+    h1 span.logo img{width:100%;height:100%;object-fit:contain;}
+
+    .controls{display:flex;gap:10px;align-items:center;flex-wrap:nowrap;}
+    
+    /* ↓↓↓ Smaller Buttons ↓↓↓ */
+    .btn{padding:6px 10px;font-size:13px;border:1px solid #334155;border-radius:10px;background:#111827;color:var(--text);cursor:pointer;white-space:nowrap;}
+    .btn:hover{border-color:#475569}
+    .btn.primary{background:var(--accent);border-color:var(--accent);color:white}
+    .btn.success{background:var(--brand);border-color:var(--brand);color:white}
+    .btn.warn{background:var(--amber);border-color:var(--amber);color:black}
+    .btn.danger{background:var(--danger);border-color:var(--danger);color:white}
+    
+   main{max-width:1400px;margin:18px auto;display:grid;gap:18px;padding:0 16px}
+
+/* Default mode (Question + OMR) */
+main.default {
+  grid-template-columns: 4fr 1fr; /* Question : OMR */
+}
+
+/* Score mode (score panel replaces OMR only) */
+main.scoreMode {
+  grid-template-columns: 1fr 1fr; /* Keep it balanced */
+}
+
+
+
+   
+   iframe{width:100%;height:79dvh;border:1px solid #1f2937;border-radius:14px;background:#0b1220}
+    
+	.panel .content{height:80dvh;overflow-y:auto;-webkit-overflow-scrolling: touch;padding:12px 14px}
+    .panel{background:var(--panel);border:1px solid #1f2937;border-radius:14px}
+    
+	.panel h2{margin:0;padding:14px 16px;border-bottom:1px solid #1f2937;font-size:13px} /* smaller than 16px */
+    .panel .content{padding:12px 14px}
+    .grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(160px,1fr));gap:8px}
+    .card{background:#0b1220;border:1px solid #1f2937;border-radius:10px;padding:6px;font-size:13px}
+    .qhead{display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;font-size:12px}
+    .choices{display:grid;grid-template-columns:repeat(5,1fr);gap:4px}
+    .choice{position:relative;}
+    .choice label{display:block;text-align:center;padding:5px 0;border-radius:8px;border:1px solid #334155;background:#0b1220;color:var(--muted);font-size:12px;font-weight:500}
+    .choice input{position:absolute;opacity:0;inset:0;cursor:pointer}
+    .choice input:checked+label{border-color:var(--ring);box-shadow:0 0 0 2px rgba(96,165,250,.4) inset;color:#fff}
+    .status{font-size:11px;color:var(--muted)}
+    .scorecard{max-width:900px;margin:20px auto;background:white;color:#111;border:1px solid #e5e7eb;border-radius:12px}
+    .scorecard header{position:relative;background:white;border-bottom:1px solid #e5e7eb}
+    .scorecard .wrap{padding:16px}
+    .score-badges{display:flex;gap:10px;flex-wrap:wrap}
+    .badge{display:inline-flex;align-items:center;gap:8px;border-radius:999px;padding:6px 10px;font-weight:600;border:1px solid #e5e7eb;font-size:13px}
+    .badge.win{background:#ecfdf5;color:#065f46}
+    .badge.lose{background:#fef2f2;color:#991b1b}
+    .badge.na{background:#fefce8;color:#92400e}
+    table{width:100%;border-collapse:collapse;font-size:13px}
+    th,td{border-bottom:1px solid #e5e7eb;padding:6px 8px;text-align:left}
+    #omrPanel,#scorePanel,#solutionPanel{display:none;}
+    main.default #omrPanel{display:block;}
+    main.scoreMode #scorePanel{display:block;}
+   
+ main.solutionMode{
+  grid-template-columns: 0.7fr 1.3fr; /* Question = 0.7 , Solution = 1.3  (ratio 0.7:1.3 = 7:13) */
+}
+main.solutionMode #solutionPanel{display:block;grid-column:auto;}
+main.solutionMode #scorePanel{grid-column:1/-1;margin-top:20px;}
+
+    @media (max-width:900px){
+      .controls{gap:6px;}
+      .btn{padding:5px 8px;font-size:12px;}
+      h1{font-size:14px;max-width:55vw;}
+    }
+    @media (max-width:600px){
+      .btn{padding:4px 7px;font-size:11px;}
+      h1{font-size:13px;gap:6px;max-width:55vw;}
+    }
+    @media (max-width:480px){
+      .btn{padding:3px 6px;font-size:10px;}
+      h1{font-size:12px;max-width:45vw;}
+    }
+.panel h2 {
+  margin: 0;
+  padding: 8px 12px;   /* reduced height */
+  font-size: 11px;     /* reduced font size */
+}
+
+
+    #lockScreen{position:fixed;inset:0;background:var(--bg);display:flex;justify-content:center;align-items:center;z-index:99999;}
+    #lockScreen .box{background:var(--panel);padding:30px;border-radius:16px;text-align:center;max-width:320px;width:100%;}
+    #lockScreen input{margin:8px 0;padding:10px;width:100%;border-radius:10px;border:1px solid #374151;background:#0b1220;color:var(--text)}
+  </style>
+</head>
+<body>
+  <!-- Lock Screen -->
+  <div id="lockScreen">
+    <div class="box">
+      <h2>Enter Password to Start Test</h2>
+      <input id="studentName" type="text" placeholder="Student Name" />
+      <input id="testPass" type="password" placeholder="Password" />
+      <button class="btn primary" id="startBtn">Start Test</button>
+      <p id="errorMsg" style="color:#ef4444;font-size:13px;display:none;">Invalid name or password</p>
+    </div>
+  </div>
+
+  <header>
+    <div class="wrap">
+      <h1>
+        <span class="logo">
+          <img src="https://i.ibb.co/WNZTWPwv/LOGO-PNG-2025-fab.png" alt="Logo">
+        </span>
+					
+        1 Work Done by Constant Force 2 
+     
+	 </h1>
+      <div class="controls">
+        <button class="btn success" id="submitBtn">Submit & Score</button>
+        <button class="btn warn" id="shareBtn" style="display:none;">Share Scorecard</button>
+        <button class="btn primary" id="viewSolutionBtn" style="display:none;">View Solution</button>
+        <button class="btn danger" id="reportBtn">Report</button>
+      </div>
+    </div>
+  </header>
+
+  <main id="mainArea" class="default" style="display:none;">
+    <section class="panel" id="questionPanel">
+      <h2>Question Paper</h2>
+      <div class="content"><iframe id="pdfFrame"></iframe></div>
+    </section>
+    <section class="panel" id="omrPanel"><h2>OMR Answer Sheet</h2><div class="content"><div id="omrGrid" class="grid"></div></div></section>
+    <section class="panel" id="scorePanel"><h2>Scorecard</h2><div class="content"><div id="resultArea"></div></div></section>
+    <section class="panel" id="solutionPanel"><h2>Solution PDF</h2><div class="content"><iframe id="solutionFrame"></iframe></div></section>
+  </main>
+
+  <script>
+    const config={
+      title:'MCQ Practice Test',
+      questionUrl:'https://g10educationalplatform-physics.github.io/IIT-JEE-M-html-PDF--Work-Energy-and-Power/1 Work Done by Constant Force 2 A.pdf',
+      solutionUrl:'https://g10educationalplatform-physics.github.io/IIT-JEE-M-html-PDF--Work-Energy-and-Power/1 Work Done by Constant Force 2 A.pdf',
+      totalQuestions:21,
+      startQuestion:41,
+      answerKey:{1:'B',2:'A',3:'C',4:'D',5:'C',
+6:'B',7:'B',8:'C',9:'A',10:'D',
+11:'D',12:'B',13:'D',14:'B',15:'B',
+16:'B',17:'B',18:'D',19:'D',20:'D',
+21:'D',22:'D',23:'D',24:'A',25:'C',
+26:'A',27:'D',28:'B',29:'D',30:'A',
+31:'B',32:'C',33:'A',34:'B',35:'A',
+36:'D',37:'A',38:'C',39:'C',40:'A',
+41:'C'},
+      marksPerCorrect:4,
+      negativeMarking:1,
+      password:'97063803571'
+    };
+    const $=id=>document.getElementById(id);
+
+    function initTest(){
+      document.title=config.title;
+$('pdfFrame').src =
+  `https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(config.questionUrl)}#toolbar=0&zoom=auto`;
+      renderOMR(config.totalQuestions);
+    }
+
+    function makeChoice(q,l,type){
+      // input first then label so CSS "input:checked + label" works
+      return `<div class="choice"><input type="${type}" name="q${q}" id="q${q}_${l}" value="${l}"><label for="q${q}_${l}">${l}</label></div>`;
+    }
+
+    function renderOMR(n){
+      const g=$('omrGrid');
+      g.innerHTML='';
+      const L=['A','B','C','D','N']; // includes N for Not Attempted
+      const start=config.startQuestion || 1;
+      for(let i=0;i<n;i++){
+        const q=start+i;
+        const rawKey=(config.answerKey[q]||'').toString().replace(/\s+/g,'').toUpperCase();
+        const keyLen = rawKey.length;
+        const type = keyLen > 1 ? 'checkbox' : 'radio';
+        const multiHint = keyLen > 1 ? '<span style="color:var(--amber);font-size:10px;margin-left:8px;">(Multi-correct)</span>' : '';
+        g.innerHTML+=`<div class="card"><div class="qhead"><div style="display:flex;align-items:center;gap:8px"><strong>Q${q}</strong>${multiHint}</div><span class="status" id="st${q}">—</span></div><div class="choices">${L.map(l=>makeChoice(q,l,type)).join('')}</div></div>`;
+      }
+
+      // attach listeners with max-selection enforcement and N-handling
+      g.querySelectorAll('input').forEach(inp=>{
+        inp.addEventListener('change',()=>{
+          const q = parseInt(inp.name.replace('q',''),10);
+          const rawKey=(config.answerKey[q]||'').toString().replace(/\s+/g,'').toUpperCase();
+          const keyLen = rawKey.length;
+
+          // If "N" (Not attempted) selected -> uncheck all other options
+          if(inp.value === 'N' && inp.checked){
+            document.querySelectorAll(`input[name=q${q}]`).forEach(x=>{
+              if(x.value !== 'N') x.checked = false;
+            });
+          }
+
+          // If any non-N is selected -> uncheck N
+          if(inp.value !== 'N' && inp.checked){
+            const nOpt = document.querySelector(`#q${q}_N`);
+            if(nOpt) nOpt.checked = false;
+          }
+
+          // enforce maximum selections for multi-correct (keyLen > 1)
+          if(keyLen > 1 && inp.value !== 'N'){
+            // only consider checked non-N options
+            const allSel = [...document.querySelectorAll(`input[name=q${q}]:checked`)]
+                            .filter(x => x.value !== 'N');
+            if(allSel.length > keyLen){
+              // prevent the last change (uncheck the input that triggered this)
+              // if the triggering input is not checked anymore (some browsers fire multiple events),
+              // ensure we only uncheck if it's currently checked.
+              inp.checked = false;
+            }
+          }
+
+          updateStatus(q);
+        });
+      });
+    }
+
+    function updateStatus(q){
+      const sel=[...document.querySelectorAll(`input[name=q${q}]:checked`)].map(x=>x.value).join('');
+      $(`st${q}`).textContent = sel || '—';
+    }
+
+    function getAllAnswers(){
+      const arr=[];
+      const start=config.startQuestion || 1;
+      for(let i=0;i<config.totalQuestions;i++){
+        const q=start+i;
+        const sel=[...document.querySelectorAll(`input[name=q${q}]:checked`)].map(x=>x.value).join('');
+        arr.push({q,ans:sel||''});
+      }
+      return arr;
+    }
+
+    // computeResult: scaled partial marking
+    function computeResult(){
+      const ans = getAllAnswers();
+      let correct=0, wrong=0, na=0, score=0;
+      const rows=[];
+
+      for(const {q, ans: markRaw} of ans){
+        const keyRaw = (config.answerKey[q] || '').toString().replace(/\s+/g,'').toUpperCase();
+        const keySet = new Set(keyRaw.split('').filter(Boolean));
+        const mark = (markRaw||'').toString().replace(/\s+/g,'').toUpperCase();
+
+        // Not attempted or explicitly N
+        if(!mark || mark === 'N'){
+          na++;
+          rows.push({q, sel:'-', key: keyRaw || '-', status:'NA'});
+          continue;
+        }
+
+        const selSet = new Set(mark.split('').filter(Boolean));
+        const correctSelCount = [...selSet].filter(x => keySet.has(x)).length;
+        const wrongSelCount = [...selSet].filter(x => !keySet.has(x)).length;
+
+        // Single-correct: full marks or full negative
+        if(keySet.size === 1){
+          if(correctSelCount === 1 && wrongSelCount === 0){
+            correct++;
+            score += config.marksPerCorrect;
+            rows.push({q, sel:mark, key:keyRaw, status:'Correct'});
+          } else {
+            wrong++;
+            score -= config.negativeMarking;
+            rows.push({q, sel:mark, key:keyRaw, status:'Wrong'});
+          }
+          continue;
+        }
+
+        // Multi-correct:
+        // perCorrect = marksPerCorrect / numberOfCorrectOptions
+        // perWrong   = negativeMarking / numberOfCorrectOptions
+        const numCorrectOptions = keySet.size;
+        const perCorrect = config.marksPerCorrect / numCorrectOptions;
+        const perWrong = config.negativeMarking / numCorrectOptions;
+
+        // full correct selected, no wrongs
+        if(correctSelCount === numCorrectOptions && wrongSelCount === 0){
+          correct++;
+          score += config.marksPerCorrect;
+          rows.push({q, sel:mark, key:keyRaw, status:'Correct'});
+          continue;
+        }
+
+        // partial / mixed selection
+        if(correctSelCount > 0 || wrongSelCount > 0){
+          const gained = correctSelCount * perCorrect;
+          const lost = wrongSelCount * perWrong;
+          const net = gained - lost; // can be negative
+          if(net > 0) correct++; else wrong++;
+          score += net;
+          rows.push({q, sel:mark, key:keyRaw, status:`Partial (${net.toFixed(2)})`});
+          continue;
+        }
+
+        // fallback (shouldn't happen)
+        wrong++;
+        score -= config.negativeMarking;
+        rows.push({q, sel:mark, key:keyRaw, status:'Wrong'});
+      }
+
+      // round to 2 decimals
+      score = Math.round(score * 100) / 100;
+      return { correct, wrong, na, score, total: config.totalQuestions, rows };
+    }
+
+    function buildScorecard(res){
+      const percent = ((res.score / (res.total * config.marksPerCorrect)) * 100).toFixed(1);
+      const stuName = $('studentName').value;
+      const rowsHtml = res.rows.map(r => `<tr><td>Q${r.q}</td><td>${r.sel}</td><td>${r.key}</td><td>${r.status}</td></tr>`).join('');
+      return `<article class="scorecard"><header><div class="wrap"><h2>${config.title}</h2><p><strong>${stuName}</strong></p></div></header><div class="wrap"><div class="score-badges"><span class="badge win">Score: ${res.score}</span><span class="badge win">Correct: ${res.correct}</span><span class="badge lose">Wrong: ${res.wrong}</span><span class="badge na">Not Attempted: ${res.na}</span><span class="badge">Total Marks: ${res.total*config.marksPerCorrect}</span><span class="badge">Percentage: ${percent}%</span></div></div><div class="wrap"><table><thead><tr><th>Q.No</th><th>Your Ans</th><th>Correct Ans</th><th>Status</th></tr></thead><tbody>${rowsHtml}</tbody></table></div></article>`;
+    }
+    
+    $('submitBtn').addEventListener('click',()=>{
+      const res = computeResult();
+      $('resultArea').innerHTML = buildScorecard(res);
+      $('viewSolutionBtn').style.display='inline-block';
+      $('shareBtn').style.display='inline-block';
+      $('mainArea').className='scoreMode';
+    });
+    
+    $('viewSolutionBtn').addEventListener('click',()=>{
+      $('solutionFrame').src=`https://mozilla.github.io/pdf.js/web/viewer.html?file=${encodeURIComponent(config.solutionUrl)}`;
+      $('mainArea').className='solutionMode';
+      if(window.innerWidth<=900){
+        setTimeout(()=>{ $('solutionPanel').scrollIntoView({behavior:'smooth'}); },200);
+      }
+    });
+
+    $('shareBtn').addEventListener('click',()=>{
+      const res = computeResult();
+      const text = `📊 ${config.title}\n👤 ${$('studentName').value}\n✅ Correct: ${res.correct}\n❌ Wrong: ${res.wrong}\n⚪ Not Attempted: ${res.na}\n🏆 Score: ${res.score}`;
+const url = `https://wa.me/918069409455?text=${encodeURIComponent(text)}`;
+      window.open(url, '_blank');
+      if(window.innerWidth<=900){
+        setTimeout(()=>{ $('scorePanel').scrollIntoView({behavior:'smooth'}); },200);
+      }
+    });
+
+    $('startBtn').addEventListener('click',()=>{
+      const name = $('studentName').value.trim();
+      const pass = $('testPass').value.trim();
+      if(!name || pass !== config.password){ $('errorMsg').style.display='block'; return; }
+      $('lockScreen').style.display='none';
+      $('mainArea').style.display='grid';
+      initTest();
+    });
+
+    // Report button logic
+    $('reportBtn').addEventListener('click',()=>{
+      const msg = prompt("Enter your report (e.g., 'Q5 solution seems wrong')");
+      if(!msg) return;
+      const student = $('studentName').value || "Anonymous";
+      const heading = config.title;
+      const encodedMsg = encodeURIComponent(`Student: ${student}\nQuiz: ${heading}\nReport: ${msg}`);
+      const phone = "918069409455";
+      window.open(`https://wa.me/${phone}?text=${encodedMsg}`, '_blank');
+    });
+  </script>
+</body>
+</html>
